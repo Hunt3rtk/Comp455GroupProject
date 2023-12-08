@@ -25,9 +25,9 @@ tree = ttk.Treeview(
 )
 
 # Scrollbars because length might be long asl and width might also be long asl
-vsb = ttk.Scrollbar(root, orient="vertical", command=tree.yview)
+vsb = ttk.Scrollbar(window, orient="vertical", command=tree.yview)
 vsb.pack(side="right", fill="y")
-hsb = ttk.Scrollbar(root, orient="horizontal", command=tree.xview)
+hsb = ttk.Scrollbar(window, orient="horizontal", command=tree.xview)
 hsb.pack(side="bottom", fill="x")
 tree.configure(yscrollcommand=vsb.set)
 
