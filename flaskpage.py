@@ -20,8 +20,6 @@ def search():
 
 
 def load_data():
-    # You can download the CSV from the following link.
-    # https://github.com/HipsterVizNinja/random-data/tree/main/Music/hot-100
     flight_data = {}
     with open("itineraries.csv") as f:
         reader = csv.DictReader(f)
