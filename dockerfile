@@ -5,15 +5,18 @@ RUN apt-get update
 RUN apt-get install -y python3 python3-pip
 RUN pip3 install pysolr
 RUN pip3 install pandas
-RUN pip3 install tk
+RUN pip3 install flask
+RUN pip3 install flask_sqlalchemy
 
 
-COPY project.py /app/project.py
+COPY . /app
 
 WORKDIR /app
 
 # Expose the Solr port
 EXPOSE 8983
+# Expose the Flask port
+EXPOSE 8080
 
-# Run the project file
-CMD ["python3", "project.py"]
+# run the webserver
+CMD ["python3", "flaskpage.py"]
