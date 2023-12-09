@@ -16,7 +16,12 @@ def index():
 
 @app.route("/search")
 def search():
-    return render_template("search.html")
+    if q:
+        # return query as a list of dictionaries
+        resuls = []  # replace [] with the query to the database
+    else:
+        results = []
+    return render_template("search_results.html", results=results)
 
 
 def load_data():
@@ -28,4 +33,4 @@ def load_data():
     return flight_data
 
 
-app.run(host="0.0.0.0", debug=True, threaded=True, use_reloader=False)
+app.run(host="0.0.0.0", port="8080", debug=True, threaded=True, use_reloader=False)
