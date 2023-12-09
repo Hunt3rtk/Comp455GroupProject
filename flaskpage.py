@@ -16,6 +16,8 @@ def index():
 
 @app.route("/search")
 def search():
+    q = request.args.get("q")  # return the query as q
+
     if q:
         # return query as a list of dictionaries
         resuls = []  # replace [] with the query to the database
