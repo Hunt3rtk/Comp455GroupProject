@@ -20,10 +20,10 @@ def search():
 
     if q:
         # return query as a list of dictionaries
-        resuls = []  # replace [] with the query to the database
+        result = []  # replace [] with the query to the database
     else:
-        results = []
-    return render_template("search_results.html", results=results)
+        result = []
+    return render_template("search_results.html", results=result)
 
 
 def load_data():
