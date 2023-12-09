@@ -7,9 +7,8 @@ RUN pip3 install pysolr
 RUN pip3 install pandas
 RUN pip3 install flask
 RUN pip3 install flask_sqlalchemy
+RUN pip3 install pandas as pd
 
-
-COPY . /app
 
 WORKDIR /app
 
@@ -19,4 +18,4 @@ EXPOSE 8983
 EXPOSE 8080
 
 # run the webserver
-CMD ["python3", "flaskpage.py"]
+CMD ["python3", "data.py"]
