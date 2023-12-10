@@ -4,6 +4,7 @@ FROM python:3
 RUN pip3 install pandas
 RUN pip3 install flask
 RUN pip3 install flask_sqlalchemy
+RUN pip3 install psycopg2
 
 # Copy the current directory contents into the container at /app
 # While ignoring the large CSV in the .dockerignore
