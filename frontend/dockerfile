@@ -1,9 +1,8 @@
-FROM python:3.10
+FROM python:3.8-slim-buster
 
 # Dependencies
-RUN pip3 install pandas
-RUN pip3 install flask
-RUN pip3 install psycopg
+RUN pip3 install --upgrade pip
+RUN pip3 freeze requirements.txt
 
 # Copy the current directory contents into the container at /app
 # While ignoring the large CSV in the .dockerignore
