@@ -1,5 +1,5 @@
 # Build the images, then run the containers
-version: '3'
+version: '3.1'
 services:
   frontend:
     build: ./frontend
@@ -7,13 +7,16 @@ services:
       - "8080:8080"
     volumes:
       - ./frontend:/app
-  backend:
+  db:
     build: ./backend
     ports:
       - "5432:5432"
     volumes:
-      - ./backend:/var/lib/postgresql/data
+      - ./backend/db:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
+  adminer:
+    image: adminer
+    ports:
+      - "8081:8080"
