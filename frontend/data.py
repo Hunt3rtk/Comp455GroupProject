@@ -1,7 +1,7 @@
 # importing flask
 from flask import Flask, render_template, request, url_for
 # importing postgres python api
-import psycopg2
+import psycopg
 # importing pandas module
 import pandas as pd
 
@@ -15,11 +15,10 @@ app = Flask(__name__)
 # connect to postgres database server
 def connect():
 
-    conn = psycopg2.connect(
+    conn = psycopg.connect(
         user="postgres",
         password="postgres",
-        host="0.0.0.0",
-        port="5432"
+        host="localhost:5432",
     )
     return conn.cursor()
 
