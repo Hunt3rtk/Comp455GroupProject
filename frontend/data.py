@@ -22,7 +22,7 @@ def connect():
         user="postgres",
         password="postgres",
         host="db",
-        database="database",
+        database="postgres",
         port="5432"
     )
     return conn.cursor()
