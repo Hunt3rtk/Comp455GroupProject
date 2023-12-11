@@ -30,7 +30,14 @@ def connect():
 
 # create database for csv
 def csv_to_db(url, cursor):
-    cursor.execute("CREATE TABLE flights (legId VARCHAR(255),flightDate VARCHAR(255),startingAirport VARCHAR(255),destinationAirport VARCHAR(255), travelDuration VARCHAR(255), isBasicEconomy BOOLEAN, isRefundable BOOLEAN, isNonStop BOOLEAN, totalFare int, seatsRemaining int)")
+    df = pd.read_csv(url, nrows=2)
+    headers = df.columns.tolist() # get the headers of each column
+    dtypes = df.dtypes.map(lambda x : x.name) # get the data type of each column
+
+    dtypeLookup = {"int64": "INT", "float64": "FLOAT", "object": "TEXT", "bool": "BOOLEAN"}
+    cursor.execute("CREATE TABLE flights ()")
+    for i in range(len(headers)):
+        cursor.execute(f"ALTER TABLE flights ADD COLUMN {headers[i]} {dtypeLookup[str(dtypes[i])]}")
     cursor.execute("SELECT * FROM flights")
     sqlstr = "COPY flights FROM STDIN DELIMITER ',' CSV"
     with open(url) as csv:
@@ -40,10 +47,8 @@ def csv_to_db(url, cursor):
 
 
 url = "/app/itineraries.csv"
-test = connect()
-
-
-csv_to_db(url, test)
+cursor = connect()
+csv_to_db(url, cursor)
 
 
 # route to html page - "table"
