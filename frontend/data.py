@@ -1,6 +1,8 @@
 # importing flask
 from flask import Flask, render_template, request, url_for
 import time
+import re
+import os
 
 # importing postgres python api
 import psycopg2
@@ -17,37 +19,49 @@ app = Flask(__name__)
 
 
 # connect to postgres database server
-def connect():
-    conn = psycopg2.connect(
-        user="postgres",
-        password="postgres",
-        host="db",
-        database="postgres",
-        port="5432"
-    )
-    return conn.cursor()
+conn = psycopg2.connect(
+    user="postgres",
+    password="postgres",
+    host="db",
+    database="postgres",
+    port="5432",
+)
+cursor = conn.cursor()
 
 
 # create database for csv
 def csv_to_db(url, cursor):
     df = pd.read_csv(url, nrows=2)
-    headers = df.columns.tolist() # get the headers of each column
-    dtypes = df.dtypes.map(lambda x : x.name) # get the data type of each column
+    headers = df.columns.tolist()  # get the headers of each column
+    dtypes = df.dtypes.map(lambda x: x.name)  # get the data type of each column
 
-    dtypeLookup = {"int64": "INT", "float64": "FLOAT", "object": "TEXT", "bool": "BOOLEAN"}
-    cursor.execute("CREATE TABLE flights ()")
-    for i in range(len(headers)):
-        cursor.execute(f"ALTER TABLE flights ADD COLUMN {headers[i]} {dtypeLookup[str(dtypes[i])]}")
-    cursor.execute("SELECT * FROM flights")
-    sqlstr = "COPY flights FROM STDIN DELIMITER ',' CSV"
+    dtypeLookup = {
+        "int64": "INT",
+        "float64": "FLOAT",
+        "object": "TEXT",
+        "bool": "BOOLEAN",
+    }
+    filename = os.path.basename(url)
+    table_name = os.path.splitext(filename)[0]
+    cursor.execute(f"CREATE TABLE {table_name} ()")  # create table dynamically
+    query = ""
+    for i, header in enumerate(headers):
+        header = re.sub("[^0-9a-zA-Z_]+", "_", header)
+        query = f"ALTER TABLE {table_name} ADD COLUMN {header} TEXT"
+        print(query)
+        cursor.execute(query)
+    cursor.execute(f"SELECT * FROM {table_name}")
+    sqlstr = f"COPY {table_name} FROM STDIN DELIMITER ',' CSV"
     with open(url) as csv:
         cursor.copy_expert(sqlstr, csv)
-    cursor.commit()
+    conn.commit()
     return
 
 
-url = "/app/itineraries.csv"
-cursor = connect()
+csv_folder = "data/"
+csv_files = os.listdir(csv_folder)
+for csv_file in csv_files:
+    url = csv_folder + csv_file
 csv_to_db(url, cursor)
 
 
