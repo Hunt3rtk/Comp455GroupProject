@@ -22,36 +22,24 @@ def connect():
         user="postgres",
         password="postgres",
         host="db",
-        port="5432",
+        database="database",
+        port="5432"
     )
     return conn.cursor()
 
 
 # create database for csv
 def csv_to_db(url, cursor):
+    cursor.execute("CREATE TABLE flights (legId VARCHAR(255),flightDate VARCHAR(255),startingAirport VARCHAR(255),destinationAirport VARCHAR(255), travelDuration VARCHAR(255), isBasicEconomy BOOLEAN, isRefundable BOOLEAN, isNonStop BOOLEAN, totalFare int, seatsRemaining int)")
     cursor.execute("SELECT * FROM flights")
-    cursor.copy_from(
-        url,
-        "flights",
-        sep=",",
-        columns=[
-            "legId",
-            "flightDate",
-            "startingAirport",
-            "destinationAirport",
-            "travelDuration",
-            "isBasicEconomy",
-            "isRefundable",
-            "isNonStop",
-            "totalFare",
-            "seatsRemaining",
-        ],
-    )
+    sqlstr = "COPY flights FROM STDIN DELIMITER ',' CSV"
+    with open(url) as csv:
+        cursor.copy_expert(sqlstr, csv)
     cursor.commit()
     return
 
 
-url = "/frontend/itineraries.csv"
+url = "/app/itineraries.csv"
 test = connect()
 
 
