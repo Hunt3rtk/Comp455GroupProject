@@ -10,9 +10,8 @@ import psycopg2
 # importing pandas module
 import pandas as pd
 
-global page
-global index
 global data
+global table_name
 global cursor
 
 app = Flask(__name__)
@@ -69,28 +68,18 @@ csv_to_db(url, cursor)
 @app.route("/")
 @app.route("/table")
 def table():
-    cursor.execute("SELECT * FROM flights")
-    data = cursor.fetchmany(100000)
-    return render_template("table.html", tables=data, page=1, index=0, titles=[""])
-
-
-# route to update page to next table
-# @app.route("/next_page/<int:page>/<int:index>", methods=["POST"])
-# def next_page(index, page):
-#    ind = index + 1
-#    pg = page + 1
-#    return render_template(
-#        "table.html", tables=data, page=pg, index=ind, titles=[""]
-#    )
+    cursor.execute("SELECT * FROM {table_name} LIMIT 50")
+    data = cursor.fetchall()
+    return render_template("table.html", tables=data, titles=[""])
 
 
 @app.route("/select_column/")
 def select_column():
     q = request.args.get("q")  # return the query as q
-    cursor.execute("SELECT {q} FROM flights")
-    data = cursor.fetchmany(100000)
+    cursor.execute("SELECT {q} FROM {table_name}")
+    data = cursor.fetchall()
 
-    return render_template("table.html", tables=data, page=1, index=0, titles=[""])
+    return render_template("table.html", tables=data, titles=[""])
 
 
 if __name__ == "__main__":
