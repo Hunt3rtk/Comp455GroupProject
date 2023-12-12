@@ -5,6 +5,7 @@ Once docker is installed, clone the repo
 git clone https://github.com/jakobupton/Comp455GroupProject
 ```
 Download a data set (.csv) of your choosing and place this into the directory
+We used [Kaggle's Book_ratings.csv](https://www.kaggle.com/datasets/mohamedbakhet/amazon-books-reviews?select=Books_rating.csv)
 ```
 Comp455GroupProject/data/
 ```
