@@ -103,7 +103,6 @@ def search():
     print(f"Limit: {limit}")
     cursor.execute(query)
     result = cursor.fetchall()
-    result = []
 
     return render_template("search_results.html", results=result)
 

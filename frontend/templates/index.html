@@ -12,7 +12,7 @@
   <section class="section">
     <div class="columns">
       <div class="column is-one-third is-offset-one-third">
-        <form>
+        <form  hx-get="/search" hx-target="#results">
           <input type="text" class="input" placeholder="Search" name="search_term"> <!-- Query Box -->
           <select name="scope" class="input" selected="all"> <!-- Query Scope -->
             <option value = "all">All</option> <!-- Search all columns -->
@@ -25,8 +25,8 @@
             <option value="{{ header }}">{{ header }}</option> <!-- Dynamically get the headers of whatever database -->
             {% endfor %}
           </select>
-            <input type="number" value="50" class="input" placeholder="Number of Rows"> <!-- How many rows to return -->
-          <input type="submit" value="Submit" hx-get="/search" hx-target="#results">
+            <input type="number" value="50" class="input" placeholder="Number of Rows" name="limit"> <!-- How many rows to return -->
+          <input type="submit" value="Submit">
         </form>
       </div>
     </div>
