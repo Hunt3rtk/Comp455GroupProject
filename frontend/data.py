@@ -58,7 +58,7 @@ def index():
 def search():
     search_term = request.args.get("search_term")
     if request.args.get("scope") == "all":
-        scope = headers
+        scope = "OR".join(str(header) for header in headers)
     else:
         scope = request.args.get("scope")
     sorted_by = request.args.get("sorted")
@@ -89,7 +89,7 @@ headers = df.columns.tolist()
 headers = [re.sub(r"\W+", "", header) for header in headers]
 filename = os.path.basename(url)
 table_name = os.path.splitext(filename)[0].lower()  # create table name from filename
-# csv_to_db(url, cursor, table_name)
+csv_to_db(url, cursor, table_name)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
