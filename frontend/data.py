@@ -26,7 +26,7 @@ def csv_to_db(url, cursor, table_name):
         )
         cursor.execute(query)
     cursor.execute(f"SELECT * FROM {table_name}")
-    sqlstr = f"COPY {table_name} FROM STDIN DELIMITER ',' CSV  HEADER"
+    sqlstr = f"COPY {table_name} FROM STDIN DELIMITER ',' CSV HEADER"
     with open(url) as csv:
         cursor.copy_expert(sqlstr, csv)
     conn.commit()
@@ -58,7 +58,7 @@ def index():
 def search():
     search_term = request.args.get("search_term")
     if request.args.get("scope") == "all":
-        scope = "OR".join(str(header) for header in headers)
+        scope = ', '.join(str(header) for header in headers)
     else:
         scope = request.args.get("scope")
     sorted_by = request.args.get("sorted")
