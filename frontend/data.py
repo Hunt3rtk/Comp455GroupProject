@@ -10,9 +10,10 @@ import psycopg2
 # importing pandas module
 import pandas as pd
 
+global cursor
+
 global data
 global table_name
-global cursor
 
 app = Flask(__name__)
 
@@ -41,7 +42,7 @@ def csv_to_db(url, cursor):
         "bool": "BOOLEAN",
     }
     filename = os.path.basename(url)
-    table_name = os.path.splitext(filename)[0]
+    table_name = os.path.splitext(filename)[0].lower()
     cursor.execute(f"CREATE TABLE {table_name} ()")  # create table dynamically
     query = ""
     for i, header in enumerate(headers):
@@ -50,36 +51,54 @@ def csv_to_db(url, cursor):
         print(query)
         cursor.execute(query)
     cursor.execute(f"SELECT * FROM {table_name}")
-    sqlstr = f"COPY {table_name} FROM STDIN DELIMITER ',' CSV"
+    sqlstr = f"COPY {table_name} FROM STDIN DELIMITER ',' CSV  HEADER"
     with open(url) as csv:
         cursor.copy_expert(sqlstr, csv)
     conn.commit()
-    return
+    return table_name
+
+def build_query_string(columns, search_term, order_by_column, limit):
+    query_string = f"SELECT {columns}\n"
+    query_string += f'FROM "{table_name}"\n'
+    query_string += "WHERE ("
+    query_string += " OR ".join(
+        [f"\"{column}\" LIKE '%{search_term}%'" for column in columns.split(",")]
+    )
+    query_string += ")\n"
+    query_string += f'ORDER BY "{order_by_column}"\n'
+    query_string += f"LIMIT {limit}"
+    return query_string
 
 
 csv_folder = "data/"
 csv_files = os.listdir(csv_folder)
 for csv_file in csv_files:
     url = csv_folder + csv_file
-csv_to_db(url, cursor)
+table_name = csv_to_db(url, cursor)
 
 
 # route to html page - "table"
 @app.route("/")
 @app.route("/table")
 def table():
-    cursor.execute("SELECT * FROM {table_name} LIMIT 50")
+    cursor.execute(f"SELECT * FROM {table_name} LIMIT 50")
     data = cursor.fetchall()
-    return render_template("table.html", tables=data, titles=[""])
+    return render_template("index.html", tables=data, titles=[""])
 
 
-@app.route("/select_column/")
-def select_column():
-    q = request.args.get("q")  # return the query as q
-    cursor.execute("SELECT {q} FROM {table_name}")
-    data = cursor.fetchall()
+@app.route("/search")
+def search():
 
-    return render_template("table.html", tables=data, titles=[""])
+    columns = request.args.get("columns")
+    search_term = request.args.get("search_term")
+    order = request.args.get("order")
+    limit = request.args.get("limit")
+    
+    query = build_query_string(columns, search_term, order, limit)
+    cursor.execute(query)
+    result = cursor.fetchall()
+
+    return render_template("search_results.html", results=result, titles=[""])
 
 
 if __name__ == "__main__":

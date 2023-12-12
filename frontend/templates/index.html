@@ -12,7 +12,13 @@
   <section class="section">
     <div class="columns">
       <div class="column is-one-third is-offset-one-third">
-        <input type="text" class="input" placeholder="Search" name="q" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results">
+        <form placeholder="Search" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results">
+          <label>Columns</label><input type="text" class="input" placeholder="Search" name="columns" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results">
+          <label>Search</label><input type="text" class="input" placeholder="Search" name="search_term" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results">
+          <label>Order Column</label><input type="text" class="input" placeholder="Search" name="order" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results">
+          <label>Limit</label><input type="text" class="input" placeholder="Search" name="limit" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results">
+          <input type="submit" value="Submit">
+        </form>
       </div>
     </div>
     <table class="table is-fullwidth">
