@@ -1,6 +1,5 @@
 # importing flask
 from flask import Flask, render_template, request, url_for
-import time
 import re
 import os
 
@@ -11,7 +10,6 @@ import psycopg2
 import pandas as pd
 
 global cursor
-
 global data
 global table_name
 
@@ -31,24 +29,19 @@ cursor = conn.cursor()
 
 # create database for csv
 def csv_to_db(url, cursor):
-    df = pd.read_csv(url, nrows=2)
-    headers = df.columns.tolist()  # get the headers of each column
-    dtypes = df.dtypes.map(lambda x: x.name)  # get the data type of each column
-
-    dtypeLookup = {
-        "int64": "INT",
-        "float64": "FLOAT",
-        "object": "TEXT",
-        "bool": "BOOLEAN",
-    }
     filename = os.path.basename(url)
-    table_name = os.path.splitext(filename)[0].lower()
-    cursor.execute(f"CREATE TABLE {table_name} ()")  # create table dynamically
+    table_name = os.path.splitext(filename)[
+        0
+    ].lower()  # create table name from filename
+    cursor.execute(f"CREATE TABLE {table_name} ()")  # create empty table
     query = ""
-    for i, header in enumerate(headers):
-        header = re.sub("[^0-9a-zA-Z_]+", "_", header)
-        query = f"ALTER TABLE {table_name} ADD COLUMN {header} TEXT"
-        print(query)
+    for header in headers:
+        header = re.sub(
+            "[^0-9a-zA-Z_]+", "_", header
+        )  # replace special characters with underscores
+        query = (
+            f"ALTER TABLE {table_name} ADD COLUMN {header} TEXT"  # add column to table
+        )
         cursor.execute(query)
     cursor.execute(f"SELECT * FROM {table_name}")
     sqlstr = f"COPY {table_name} FROM STDIN DELIMITER ',' CSV  HEADER"
@@ -57,13 +50,17 @@ def csv_to_db(url, cursor):
     conn.commit()
     return table_name
 
+
 def build_query_string(columns, search_term, order_by_column, limit):
     query_string = f"SELECT {columns}\n"
-    query_string += f'FROM "{table_name}"\n'
+    query_string += f"FROM {table_name}\n"
     query_string += "WHERE ("
-    query_string += " OR ".join(
-        [f"\"{column}\" LIKE '%{search_term}%'" for column in columns.split(",")]
-    )
+    if isinstance(columns, str):  # if columns is a string, only search that column
+        query_string += f"\"{columns}\" LIKE '%{search_term}%'"
+    else:
+        query_string += " OR ".join(  # if columns is a list, search all columns
+            [f"\"{column}\" LIKE '%{search_term}%'" for column in columns]
+        )
     query_string += ")\n"
     query_string += f'ORDER BY "{order_by_column}"\n'
     query_string += f"LIMIT {limit}"
@@ -74,31 +71,41 @@ csv_folder = "data/"
 csv_files = os.listdir(csv_folder)
 for csv_file in csv_files:
     url = csv_folder + csv_file
+df = pd.read_csv(url, nrows=2)
+headers = df.columns.tolist()
 table_name = csv_to_db(url, cursor)
 
 
-# route to html page - "table"
 @app.route("/")
-@app.route("/table")
 def table():
     cursor.execute(f"SELECT * FROM {table_name} LIMIT 50")
-    data = cursor.fetchall()
-    return render_template("index.html", tables=data, titles=[""])
+    data = cursor.fetchall()  # initial data display
+    return render_template(
+        "index.html", tables=data, titles=headers, table_name=table_name
+    )
 
 
 @app.route("/search")
 def search():
-
-    columns = request.args.get("columns")
     search_term = request.args.get("search_term")
-    order = request.args.get("order")
+
+    scope = (
+        headers if request.args.get("scope") == "all" else {request.args.get("scope")}
+    )
+    sorted_by = request.args.get("sorted")
     limit = request.args.get("limit")
-    
-    query = build_query_string(columns, search_term, order, limit)
+
+    query = build_query_string(scope, search_term, sorted_by, limit)
+    print(query)
+    print(f"Search: {search_term}")
+    print(f"Scope: {scope}")
+    print(f"Sorted by: {sorted_by}")
+    print(f"Limit: {limit}")
     cursor.execute(query)
     result = cursor.fetchall()
+    result = []
 
-    return render_template("search_results.html", results=result, titles=[""])
+    return render_template("search_results.html", results=result)
 
 
 if __name__ == "__main__":

@@ -6,32 +6,39 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Search and Explore Platform</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-  <script src="https://unpkg.com/htmx.org@1.9.4"></script> 
+  <script src="https://unpkg.com/htmx.org/dist/htmx.js"></script>
 </head>
 <body>
   <section class="section">
     <div class="columns">
       <div class="column is-one-third is-offset-one-third">
-        <form placeholder="Search" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results">
-          <label>Columns</label><input type="text" class="input" placeholder="Search" name="columns" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results">
-          <label>Search</label><input type="text" class="input" placeholder="Search" name="search_term" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results">
-          <label>Order Column</label><input type="text" class="input" placeholder="Search" name="order" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results">
-          <label>Limit</label><input type="text" class="input" placeholder="Search" name="limit" hx-get="/search" hx-trigger="keyup changed delay:500ms" hx-target="#results">
-          <input type="submit" value="Submit">
+        <form>
+          <input type="text" class="input" placeholder="Search" name="search_term"> <!-- Query Box -->
+          <select name="scope" class="input" selected="all"> <!-- Query Scope -->
+            <option value = "all">All</option> <!-- Search all columns -->
+            {% for header in titles %} 
+            <option value="{{ header }}">{{ header }}</option> <!-- Dynamically get the headers of whatever database -->
+            {% endfor %}
+          </select>
+            <select name="sorted" class="input"> <!-- Query Sort -->
+            {% for header in titles %}
+            <option value="{{ header }}">{{ header }}</option> <!-- Dynamically get the headers of whatever database -->
+            {% endfor %}
+          </select>
+            <input type="number" value="50" class="input" placeholder="Number of Rows"> <!-- How many rows to return -->
+          <input type="submit" value="Submit" hx-get="/search" hx-target="#results">
         </form>
       </div>
     </div>
     <table class="table is-fullwidth">
       <thead>
         <tr>
-          <th>Test1</th>
-          <th>Test2</th>
-          <th>Test3</th>
-          <th>Test4</th>
-          <th>Test5</th>
+          {% for header in titles %}
+          <th>{{ header }}</th>
+          {% endfor %} 
         </tr>
       </thead>
-      <tbody id="results">
+      <tbody id="results"> <!-- -->
       </tbody>
     </table>
   </section>
